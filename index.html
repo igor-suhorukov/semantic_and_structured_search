@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Semantic + Structured Text Search</title>
+    <script type="module" crossorigin src="/assets/index-BjhnWMOq.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BNx4lcHh.css">
+  </head>
+  <body>
+    <div id="app">
+      <div id="status">Initializing…</div>
+      <div id="theme-toggle" class="theme-toggle" title="Toggle dark/light theme">
+        <span id="theme-icon">🌙</span>
+      </div>
+      <div class="card filter-section">
+        <div class="filter-header">
+          <h3>Filters</h3>
+          <div class="filter-actions">
+            <div id="limit-selector" class="limit-selector">
+              <label class="limit-label">Record limit</label>
+              <button class="limit-btn" data-limit="5">5</button>
+              <button class="limit-btn active" data-limit="15">15</button>
+              <button class="limit-btn" data-limit="30">30</button>
+              <button class="limit-btn" data-limit="50">50</button>
+              <button class="limit-btn" data-limit="100">100</button>
+              <button class="limit-btn" data-limit="99999">99999</button>
+            </div>
+            <button id="filter-clear-btn" class="secondary" disabled>Reset all</button>
+            <button id="filter-toggle-btn" class="secondary">Collapse</button>
+          </div>
+        </div>
+        <div id="filter-container"></div>
+      </div>
+      <div class="card">
+        <label for="query-input">Enter a query</label>
+        <div class="input-row" style="margin-top: 8px">
+          <input type="text" id="query-input" placeholder="Describe what you're looking for…" disabled />
+          <button id="search-btn" disabled>Search</button>
+          <button id="clear-btn" disabled>Clear</button>
+        </div>
+      </div>
+      <div class="card table-section">
+        <h3>Results (<span id="count">0</span>)</h3>
+        <table>
+          <thead><tr><th>ID</th><th>Original Text</th><th>Similarity score</th><th>URL</th></tr></thead>
+          <tbody id="results-body">
+            <tr><td colspan="4" style="text-align:center; color: var(--text-muted)">No results yet</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div id="log-header">
+          <span>Log</span>
+          <button id="clear-log" class="secondary">Clear log</button>
+        </div>
+        <div id="log"></div>
+      </div>
+      <div class="card doc-section">
+        <h3>Project description</h3>
+        <p>This is an example of an application that allows searching a large text collection using semantic search combined with structured field search.
+          The source articles text is <a href="https://isuhorukov.itch.io/">processed using LLM</a>, and the structured results are saved to a database. Based on this derived data, vectors are calculated using an embedding model. This is a preparatory stage for further processing of your information.</p>
+        <p>Then, the data collection becomes available for local search, both for semantic proximity based on vectors and by keywords and structured features.</p>
+        <details>
+          <summary><strong>What this application does</strong></summary>
+          <p>
+            A semantic + structured text search tool powered by
+            <strong>EmbeddingGemma 300M</strong> via wllama and <strong>DuckDB-WASM</strong>.
+            Runs entirely in your browser — no server required.
+          </p>
+        </details>
+        <details>
+          <summary><strong>Architecture</strong></summary>
+          <ul>
+            <li><strong>Embedding model:</strong> EmbeddingGemma 300M (Q4_0) via wllama — runs client-side.</li>
+            <li><strong>Vector search:</strong> Cosine similarity over flat parquet partitions (<code>text_embeddings</code> view).</li>
+            <li><strong>Structured data:</strong> 30-column <code>indexed_text</code> view loaded from a single parquet file, including nested STRUCT, MAP, and ARRAY types.</li>
+            <li><strong>Filters:</strong> DuckDB SQL WHERE-clause filters applied directly to structured columns.</li>
+          </ul>
+        </details>
+        <details>
+          <summary><strong>Semantic search workflow</strong></summary>
+          <ol>
+            <li>Enter a free-text query.</li>
+            <li>The running LLM computes a 768-dim L2-normalized embedding vector with wllama.</li>
+            <li>DuckDB-WASM compares this vector against all stored embeddings using <code>list_cosine_similarity</code>.</li>
+            <li>Results are joined with <code>indexed_text</code> to display original text and metadata.</li>
+          </ol>
+        </details>
+        <details>
+          <summary><strong>Available embedded fields</strong></summary>
+          <p>Each record can produce embeddings for multiple sub-fields:</p>
+          <table class="doc-table">
+            <thead><tr><th>Name</th><th>Source</th></tr></thead>
+            <tbody>
+              <tr><td><code>summary</code></td><td><code>s.summary</code></td></tr>
+              <tr><td><code>meaning</code></td><td><code>s.meaning</code></td></tr>
+              <tr><td><code>nsfwReason</code></td><td><code>s.nsfw_reasons[]</code></td></tr>
+              <tr><td><code>insight</code></td><td><code>s.key_insights[]</code></td></tr>
+              <tr><td><code>contradictory</code></td><td><code>s.contradictory_statements[]</code></td></tr>
+              <tr><td><code>theme</code></td><td><code>s.themes[]</code></td></tr>
+              <tr><td><code>topic</code></td><td><code>s.topics[]['topic_description']</code></td></tr>
+              <tr><td><code>audience</code></td><td><code>s.target_audience['audience_description']</code></td></tr>
+            </tbody>
+          </table>
+        </details>
+        <details>
+          <summary><strong>Filters</strong></summary>
+          <p>Filters apply a DuckDB WHERE clause on the <code>indexed_text</code> table.</p>
+          <ul>
+            <li><strong>Select</strong> — single-value (Primary Genre, Sentiment Polarity, Completeness, Target Audience).</li>
+            <li><strong>Chips</strong> — multi-value (Secondary Genres, Keywords, Demagoguery Techniques).</li>
+            <li><strong>Tristate</strong> — Yes / No / All (Is NSFW, Has Advertising).</li>
+          </ul>
+          <p>Multiple filters are AND-ed together in the SQL.</p>
+        </details>
+        <details>
+          <summary><strong>Indexed text schema</strong></summary>
+          <p>
+            The <code>indexed_text</code> view exposes columns over a parquet file:
+            <pre>task_id                  BIGINT
+url                      VARCHAR
+title                    VARCHAR
+summary                  VARCHAR
+meaning                  VARCHAR
+target_audience          STRUCT("level" VARCHAR, audience_description VARCHAR)
+genre                    STRUCT(primary_genre VARCHAR, secondary_genres VARCHAR[])
+topics                   STRUCT("name" VARCHAR, topic_description VARCHAR)[]
+themes                   VARCHAR[]
+key_insights             VARCHAR[]
+is_not_safe_for_work     BOOLEAN
+keywords                 VARCHAR[]
+keyword_taxonomy         VARCHAR[]
+nsfw_reasons             VARCHAR[]
+metadata                 MAP(VARCHAR, VARCHAR)
+metadata_create_time     TIMESTAMP
+sentiment                STRUCT(polarity VARCHAR, confidence DOUBLE, tone VARCHAR, explanation VARCHAR)
+completeness             STRUCT(score DOUBLE, "level" VARCHAR, missing_elements VARCHAR[])
+contradictory_statements VARCHAR[]
+demagoguery_analysis     STRUCT(detected_techniques_used_in_this_text VARCHAR[], severity VARCHAR, explanation VARCHAR)
+presence_of_advertising  BOOLEAN
+advertising_details      STRUCT(advertising_items VARCHAR[], confidence DOUBLE, explanation VARCHAR)</pre>
+          </p>
+        </details>
+      </div>
+    </div>
+    <div id="popup-overlay" class="popup-overlay hidden">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h3 id="popup-title">Record Details</h3>
+          <button id="popup-close" class="secondary popup-close-btn">&times;</button>
+        </div>
+        <div id="popup-body" class="popup-body"></div>
+      </div>
+    </div>
+    <footer class="footer">
+      <a href="https://github.com/igor-suhorukov" target="_blank" rel="noopener noreferrer">https://github.com/igor-suhorukov</a>
+    </footer>
+  </body>
+</html>
