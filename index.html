@@ -2,11 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Semantic + Structured Text Search</title>
-    <script type="module" crossorigin src="/assets/index-BjhnWMOq.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BNx4lcHh.css">
+    <script type="module" crossorigin src="./assets/index-BjhnWMOq.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BNx4lcHh.css">
   </head>
   <body>
     <div id="app">
@@ -118,7 +118,7 @@
         <details>
           <summary><strong>Indexed text schema</strong></summary>
           <p>
-            The <code>indexed_text</code> view exposes columns over a parquet file:
+            The <code>indexed_text</code> view exposes columns over a parquet file:</p>
             <pre>task_id                  BIGINT
 url                      VARCHAR
 title                    VARCHAR
@@ -141,7 +141,7 @@ contradictory_statements VARCHAR[]
 demagoguery_analysis     STRUCT(detected_techniques_used_in_this_text VARCHAR[], severity VARCHAR, explanation VARCHAR)
 presence_of_advertising  BOOLEAN
 advertising_details      STRUCT(advertising_items VARCHAR[], confidence DOUBLE, explanation VARCHAR)</pre>
-          </p>
+
         </details>
       </div>
     </div>
