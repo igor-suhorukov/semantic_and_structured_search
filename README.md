@@ -4,7 +4,7 @@ A semantic + structured text search tool powered by **EmbeddingGemma 300M** via 
 
 ## What it does
 
-Source articles are processed using an LLM to extract structured metadata (genres, topics, themes, sentiment, NSFW flags, etc.) and stored in a database. Embedding vectors are then computed from derived fields. The resulting collection is available for local search both by semantic proximity (vector distance) and by keywords or structured features.
+Source articles are processed [using an LLM to extract structured metadata](https://isuhorukov.itch.io/text-metadata-generator) (genres, topics, themes, sentiment, NSFW flags, etc.) and stored in a database. Embedding vectors are then computed from derived fields. The resulting collection is available for local search both by semantic proximity (vector distance) and by keywords or structured features.
 
 ## Installation
 
