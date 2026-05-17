@@ -134,6 +134,7 @@ keywords                 VARCHAR[]
 keyword_taxonomy         VARCHAR[]
 nsfw_reasons             VARCHAR[]
 metadata                 MAP(VARCHAR, VARCHAR)
+user_rating              INTEGER
 metadata_create_time     TIMESTAMP
 sentiment                STRUCT(polarity VARCHAR, confidence DOUBLE, tone VARCHAR, explanation VARCHAR)
 completeness             STRUCT(score DOUBLE, "level" VARCHAR, missing_elements VARCHAR[])
